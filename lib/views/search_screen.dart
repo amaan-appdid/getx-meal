@@ -41,6 +41,9 @@ class _SearchScreenState extends State<SearchScreen> {
           TextField(
             decoration: InputDecoration(
               labelText: "Enter Meal name ",
+              labelStyle: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
               suffixIcon: Icon(
                 Icons.search,
               ),
