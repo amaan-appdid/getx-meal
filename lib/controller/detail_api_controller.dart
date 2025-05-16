@@ -21,10 +21,13 @@ class DetailApiController extends GetxController implements GetxService {
     try {
       final response = await http.get(Uri.parse("${Appconstants().descriptionApi}$id"));
       log("Response Recieved: ${response.statusCode}");
+      log(response.body);
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonData = jsonDecode(response.body)["meals"];
+        log("${jsonDecode(response.body)}");
         detailList = jsonData.map((e) => DetailModel.fromJson(e)).toList();
+
         error = "";
       } else {
         error = "Failed to Load data";

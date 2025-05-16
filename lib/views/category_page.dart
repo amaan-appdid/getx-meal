@@ -49,6 +49,7 @@ class _CategoryPageState extends State<CategoryPage> {
                               MaterialPageRoute(
                                 builder: (context) => ProductPage(
                                   title: category.strCategory,
+                                  imageUrl: category.strCategoryThumb,
                                 ),
                               ),
                             );
