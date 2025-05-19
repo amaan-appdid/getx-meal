@@ -1,33 +1,21 @@
-// To parse this JSON data, do
-//
-//     final productModel = productModelFromJson(jsonString);
-
-import 'dart:convert';
-
-ProductModel productModelFromJson(String str) => ProductModel.fromJson(json.decode(str));
-
-String productModelToJson(ProductModel data) => json.encode(data.toJson());
-
 class ProductModel {
-    String strMeal;
-    String strMealThumb;
-    String idMeal;
+  final String idMeal;
+  final String strMeal;
+  final String strMealThumb;
+  bool isLiked;
 
-    ProductModel({
-        required this.strMeal,
-        required this.strMealThumb,
-        required this.idMeal,
-    });
+  ProductModel({
+    required this.idMeal,
+    required this.strMeal,
+    required this.strMealThumb,
+    this.isLiked = false,
+  });
 
-    factory ProductModel.fromJson(Map<String, dynamic> json) => ProductModel(
-        strMeal: json["strMeal"],
-        strMealThumb: json["strMealThumb"],
-        idMeal: json["idMeal"],
+  factory ProductModel.fromJson(Map<String, dynamic> json) {
+    return ProductModel(
+      idMeal: json['idMeal'],
+      strMeal: json['strMeal'],
+      strMealThumb: json['strMealThumb'],
     );
-
-    Map<String, dynamic> toJson() => {
-        "strMeal": strMeal,
-        "strMealThumb": strMealThumb,
-        "idMeal": idMeal,
-    };
+  }
 }

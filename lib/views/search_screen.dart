@@ -1,8 +1,8 @@
-import 'dart:async';
-
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_meal/controller/search_api_controller.dart';
+import 'package:get_meal/views/detail_page.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -12,65 +12,119 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  final TextEditingController search = TextEditingController();
-  // ignore: unused_element
+  final TextEditingController searchController = TextEditingController();
+
   void _search() {
-    final query = search.text.trim();
-    if (query.isNotEmpty) {}
+    final query = searchController.text.trim();
+    if (query.isNotEmpty) {
+      Get.find<SearchApiController>().getSearch(query);
+    }
   }
 
+  final FocusNode focusNode = FocusNode();
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) {
+        focusNode.requestFocus();
+      },
+    );
     super.initState();
-    Timer.run(() async {
-      await Get.find<SearchApiController>().getSearch();
-    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final searchControllerInstance = Get.find<SearchApiController>();
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Search Meals"),
+        title: const Text("Search Meals"),
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
       ),
-      body: Column(
-        children: [
-          TextField(
-            decoration: InputDecoration(
-              labelText: "Enter Meal name ",
-              labelStyle: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-              suffixIcon: Icon(
-                Icons.search,
+      body: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: searchController,
+              onChanged: (value) {
+                setState(() {
+                  _search();
+                });
+              },
+              onSubmitted: (_) => _search(),
+              focusNode: focusNode,
+              decoration: InputDecoration(
+                labelText: "Enter meal name",
+                labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+                suffixIcon: searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          searchController.clear();
+                          FocusScope.of(context).unfocus();
+                          setState(() {}); // Refresh UI
+                          searchControllerInstance.clearResults();
+                        },
+                      )
+                    : IconButton(
+                        icon: const Icon(Icons.search),
+                        onPressed: _search,
+                      ),
+                border: const OutlineInputBorder(),
               ),
             ),
-          ),
-          GetBuilder<SearchApiController>(
-            builder: (controller) {
-              if (controller.isLoading)
-                Expanded(child: Center(child: CircularProgressIndicator()));
-              else if (controller.searchList.isEmpty) Text("No Meals Found");
-              return ListView.builder(
-                itemCount: controller.searchList.length,
-                itemBuilder: (context, index) {
-                  final meal = controller.searchList[index];
-                  return ListTile(
-                    title: Text(meal.strInstructions),
-                    leading: CircleAvatar(
-                      backgroundImage: NetworkImage(
-                        meal.strMealThumb,
-                      ),
-                    ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: GetBuilder<SearchApiController>(
+                builder: (controller) {
+                  if (controller.isLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (controller.error.isNotEmpty) {
+                    log(controller.error);
+                    return Center(child: Text(controller.error));
+                  }
+
+                  if (controller.searchList.isEmpty) {
+                    return const Center(child: Text("No meals to display."));
+                  }
+
+                  return ListView.builder(
+                    itemCount: controller.searchList.length,
+                    itemBuilder: (context, index) {
+                      final meal = controller.searchList[index];
+                      return Card(
+                        child: ListTile(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DetailPage(id: meal.idMeal),
+                              ),
+                            );
+                          },
+                          title: Text(meal.strMeal),
+                          leading: CircleAvatar(
+                            backgroundImage: NetworkImage(meal.strMealThumb),
+                          ),
+                          subtitle: Text(
+                            meal.strInstructions,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      );
+                    },
                   );
                 },
-              );
-            },
-          ),
-        ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

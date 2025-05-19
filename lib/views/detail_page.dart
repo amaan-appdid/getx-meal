@@ -6,9 +6,9 @@ import 'package:get_meal/controller/detail_api_controller.dart';
 import 'package:get_meal/views/full_screen_page.dart';
 
 class DetailPage extends StatefulWidget {
-  DetailPage({super.key, required this.id, required this.title});
+  DetailPage({super.key, required this.id, });
   final String id;
-  final String title;
+  // final String? title;
 
   @override
   State<DetailPage> createState() => _DetailPageState();
@@ -32,7 +32,7 @@ class _DetailPageState extends State<DetailPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(widget.title),
+        // title: Text(widget.title),
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
       ),
