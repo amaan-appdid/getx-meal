@@ -39,5 +39,22 @@ class ProductApiController extends GetxController implements GetxService {
     }
   }
 
+  List<ProductModel> cartItems = [];
+
+  void addToCart(product) {
+    if (!cartItems.contains(product)) {
+      cartItems.add(product);
+      update(); // Notify UI
+    }
+  }
+
+  void like(String id) {
+    final index = productList.indexWhere((p) => p.idMeal == id);
+    if (index != -1) {
+      productList[index].isLiked = !productList[index].isLiked;
+      update();
+    }
+  }
+
   List<ProductModel> get likedProducts => productList.where((p) => p.isLiked).toList();
 }

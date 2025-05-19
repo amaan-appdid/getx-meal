@@ -2,9 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_meal/controller/product_api.dart';
-import 'package:get_meal/views/cart_screen.dart';
+
 import 'package:get_meal/views/detail_page.dart';
-import 'package:get_meal/views/search_screen.dart';
+import 'package:get_meal/views/like_screen.dart';
+import 'package:get_meal/views/search_screen.dart'; // Import the cart screen
 
 class ProductPage extends StatefulWidget {
   const ProductPage({super.key, required this.title, required this.imageUrl});
@@ -24,8 +25,6 @@ class _ProductPageState extends State<ProductPage> {
       await Get.find<ProductApiController>().getProducts(title: widget.title);
     });
   }
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +51,17 @@ class _ProductPageState extends State<ProductPage> {
             ],
           ),
           body: controller.isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? ListView.builder(
+                  itemCount: controller.productList.length,
+                  itemBuilder: (context, index) {
+                    return Card(
+                      child: ListTile(
+                        leading: CircularProgressIndicator(),
+                        title: Text("Loading..."),
+                      ),
+                    );
+                  },
+                )
               : controller.error.isNotEmpty
                   ? Center(child: Text(controller.error))
                   : ListView.builder(
@@ -60,8 +69,9 @@ class _ProductPageState extends State<ProductPage> {
                       itemBuilder: (context, index) {
                         final product = controller.productList[index];
                         return Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(20),
                           child: Card(
+                            color: Colors.white,
                             child: ListTile(
                               onTap: () {
                                 Navigator.push(
@@ -77,14 +87,32 @@ class _ProductPageState extends State<ProductPage> {
                               leading: CircleAvatar(
                                 backgroundImage: NetworkImage(product.strMealThumb),
                               ),
-                              trailing: IconButton(
-                                icon: Icon(
-                                  product.isLiked ? Icons.favorite : Icons.favorite_border,
-                                  color: product.isLiked ? Colors.red : Colors.grey,
-                                ),
-                                onPressed: () {
-                                  controller.toggleLike(product.idMeal);
-                                },
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(
+                                      product.isLiked ? Icons.favorite : Icons.favorite_border,
+                                      color: product.isLiked ? Colors.red : Colors.grey,
+                                    ),
+                                    onPressed: () {
+                                      controller.toggleLike(product.idMeal);
+                                    },
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      controller.addToCart(product);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.green,
+                                      foregroundColor: Colors.white,
+                                    ),
+                                    child: const Text(
+                                      'Add to Cart',
+                                      style: TextStyle(fontSize: 10),
+                                    ),
+                                  )
+                                ],
                               ),
                             ),
                           ),
@@ -95,11 +123,15 @@ class _ProductPageState extends State<ProductPage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const CartScreen()),
+                MaterialPageRoute(
+                  builder: (_) => likeScreens(),
+                ),
               );
             },
             backgroundColor: Colors.redAccent,
-            child: const Icon(Icons.shopping_cart),
+            child: const Icon(
+              Icons.shopping_cart,
+            ),
           ),
         );
       },

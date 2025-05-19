@@ -11,8 +11,26 @@ class SearchApiController extends GetxController implements GetxService {
 
   List<SearchModel> searchList = [];
 
+  /// Set of favorite meal IDs
+  final Set<String> _favoriteMealIds = {};
+
+  /// Public getter for favorite status
+  bool isFavorite(String mealId) => _favoriteMealIds.contains(mealId);
+
+  /// Toggle favorite status
+  void toggleFavorite(String mealId) {
+    if (_favoriteMealIds.contains(mealId)) {
+      _favoriteMealIds.remove(mealId);
+      log(" Removed from favorites: $mealId");
+    } else {
+      _favoriteMealIds.add(mealId);
+      log(" Added to favorites: $mealId");
+    }
+    update(); // Notify listeners
+  }
+
   Future<void> getSearch(String query) async {
-    log("🔍 Fetching data for query: $query");
+    log(" Fetching data for query: $query");
     isLoading = true;
     update();
 
@@ -21,6 +39,7 @@ class SearchApiController extends GetxController implements GetxService {
 
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
+        log(" Status Code: ${response.statusCode}");
 
         if (jsonData["meals"] != null) {
           searchList = (jsonData["meals"] as List).map((e) => SearchModel.fromJson(e)).toList();
@@ -28,15 +47,15 @@ class SearchApiController extends GetxController implements GetxService {
           log(" Found ${searchList.length} meals");
         } else {
           searchList.clear();
-          error = "No meals found for \"$query\".";
+          error = " No meals found for \"$query\".";
           log(" No meals found");
         }
       } else {
-        error = " Failed to load data (Status code: ${response.statusCode})";
+        error = "Failed to load data (Status code: ${response.statusCode})";
         log(error);
       }
     } catch (e) {
-      error = " An error occurred: $e";
+      error = "❗ An error occurred: $e";
       log(error);
     } finally {
       isLoading = false;
@@ -44,7 +63,6 @@ class SearchApiController extends GetxController implements GetxService {
     }
   }
 
-  /// Clears search results and errors
   void clearResults() {
     searchList.clear();
     error = '';

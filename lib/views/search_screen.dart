@@ -98,23 +98,44 @@ class _SearchScreenState extends State<SearchScreen> {
                     itemBuilder: (context, index) {
                       final meal = controller.searchList[index];
                       return Card(
-                        child: ListTile(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DetailPage(id: meal.idMeal),
+                        color: Colors.white,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                offset: Offset(4, 4),
+                                blurRadius: 4,
+                                color: Colors.black.withOpacity(0.10),
                               ),
-                            );
-                          },
-                          title: Text(meal.strMeal),
-                          leading: CircleAvatar(
-                            backgroundImage: NetworkImage(meal.strMealThumb),
+                            ],
                           ),
-                          subtitle: Text(
-                            meal.strInstructions,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                          child: ListTile(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailPage(id: meal.idMeal),
+                                ),
+                              );
+                            },
+                            title: Text(meal.strMeal),
+                            leading: CircleAvatar(
+                              backgroundImage: NetworkImage(meal.strMealThumb),
+                            ),
+                            subtitle: Text(
+                              meal.strInstructions,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            trailing: IconButton(
+                              icon: Icon(
+                                controller.isFavorite(meal.idMeal) ? Icons.favorite : Icons.favorite_border,
+                                color: Colors.red,
+                              ),
+                              onPressed: () {
+                                controller.toggleFavorite(meal.idMeal);
+                              },
+                            ),
                           ),
                         ),
                       );
