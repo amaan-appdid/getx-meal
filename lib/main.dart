@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_meal/controller/cart_controller.dart';
 
 import 'package:get_meal/controller/categories_api.dart';
 import 'package:get_meal/controller/detail_api_controller.dart';
@@ -13,6 +14,7 @@ void main() {
   Get.lazyPut(() => ProductApiController());
   Get.lazyPut(() => DetailApiController());
   Get.lazyPut(() => SearchApiController());
+  Get.lazyPut(() => CartController());
 }
 
 class MyApp extends StatelessWidget {

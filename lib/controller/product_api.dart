@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:get/get.dart';
 import 'package:get_meal/Api/appconstants.dart';
@@ -16,19 +17,21 @@ class ProductApiController extends GetxController implements GetxService {
 
     try {
       final response = await http.get(Uri.parse("${Appconstants().productApi}$title"));
+      log(response.body.toString());
       if (response.statusCode == 200) {
         final List<dynamic> jsonData = jsonDecode(response.body)["meals"];
         productList = jsonData.map((e) => ProductModel.fromJson(e)).toList();
+
+        log("${productList}");
         error = "";
       } else {
         error = "Failed to load data";
       }
     } catch (e) {
       error = "An error occurred: $e";
-    } finally {
-      isLoading = false;
-      update();
     }
+    isLoading = false;
+    update();
   }
 
   void toggleLike(String id) {
@@ -39,14 +42,14 @@ class ProductApiController extends GetxController implements GetxService {
     }
   }
 
-  List<ProductModel> cartItems = [];
+  // List<ProductModel> cartItems = [];
 
-  void addToCart(product) {
-    if (!cartItems.contains(product)) {
-      cartItems.add(product);
-      update(); // Notify UI
-    }
-  }
+  // void addToCart(product) {
+  //   if (!cartItems.contains(product)) {
+  //     cartItems.add(product);
+  //     update(); // Notify UI
+  //   }
+  // }
 
   void like(String id) {
     final index = productList.indexWhere((p) => p.idMeal == id);
@@ -57,4 +60,14 @@ class ProductApiController extends GetxController implements GetxService {
   }
 
   List<ProductModel> get likedProducts => productList.where((p) => p.isLiked).toList();
+
+  void cart(String id) {
+    final index = productList.indexWhere((p) => p.idMeal == id);
+    if (index != -1) {
+      productList[index].isLiked = !productList[index].isLiked;
+      update();
+    }
+  }
+
+  List<ProductModel> get cartProducts => productList.where((p) => p.isLiked).toList();
 }

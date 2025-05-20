@@ -67,6 +67,6 @@ class SearchApiController extends GetxController implements GetxService {
     searchList.clear();
     error = '';
     update();
-    log("🧹 Cleared search results");
+    log("🧹Cleared search results");
   }
 }

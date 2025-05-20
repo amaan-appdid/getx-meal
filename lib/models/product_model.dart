@@ -3,12 +3,14 @@ class ProductModel {
   final String strMeal;
   final String strMealThumb;
   bool isLiked;
+  int quantity;
 
   ProductModel({
     required this.idMeal,
     required this.strMeal,
     required this.strMealThumb,
     this.isLiked = false,
+    this.quantity = 1,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
